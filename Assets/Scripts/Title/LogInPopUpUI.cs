@@ -59,11 +59,17 @@ public class LogInPopUpUI : MonoBehaviour
 
     private async UniTaskVoid OnGoogleLogInButtonClicked()
     {
+        if (nickName == string.Empty)
+        {
+            SetErrorMessage("Please enter a nickname.").Forget();
+            return;
+        }
+
         InteractableButtons(false);
 
         try
         {
-            var result = await AuthManager.Instance.SignInWithGoogleAsync();
+            var result = await AuthManager.Instance.SignInWithGoogleAsync(nickName);
 
             if (result.Item1 == false)
             {
@@ -79,8 +85,6 @@ public class LogInPopUpUI : MonoBehaviour
 
             if (!dataSnapshot.Exists)
             {
-                nickName = AuthManager.Instance.UserNickName;
-
                 await UserPlanetManager.Instance.InitUserPlanetAsync(nickName);
                 await UserTowerManager.Instance.InitUserTowerDataAsync();
                 await UserTowerUpgradeManager.Instance.InitUserTowerUpgradeAsync();
