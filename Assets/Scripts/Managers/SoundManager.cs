@@ -570,6 +570,36 @@ public class SoundManager : MonoBehaviour
         playing.Remove(source);
         ReturnSource(source);
     }
+
+    public void StopAllSounds()
+    {
+        bgmSource.Stop();
+
+        sfxButtonSource.Stop();
+
+        foreach(var kv in playing)
+        {
+            if(kv.Key != null)
+            {
+                kv.Key.Stop();
+                kv.Key.clip = null;
+                kv.Key.loop = false;
+            }
+        }
+
+        playing.Clear();
+
+        List<AudioSource> activeSources = new List<AudioSource>(playing.Keys);
+        foreach(var kv in playing)
+        {
+            activeSources.Add(kv.Key);
+        }
+
+        foreach(var source in activeSources)
+        {
+            ReturnSource(source);
+        }
+    }
     
 
 }
