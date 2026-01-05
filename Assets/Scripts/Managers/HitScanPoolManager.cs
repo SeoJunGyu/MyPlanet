@@ -28,6 +28,16 @@ public class HitScanPoolManager : MonoBehaviour
         EnsurePool();
     }
 
+    private void OnDestroy()
+    {
+        if(Instance == this)
+        {
+            ClearAllActiveHitScans();
+            pool.Clear();
+            Instance = null;
+        }
+    }
+
     private void EnsurePool()
     {
         if (pool.HasPool(HITSCAN_KEY)) return;
@@ -68,4 +78,25 @@ public class HitScanPoolManager : MonoBehaviour
         if (hitScan == null) return;
         pool.Return(HITSCAN_KEY, hitScan);
     }
+
+    public void ClearAllActiveHitScans()
+    {
+        if (poolParent == null)
+        {
+            return;
+        }
+
+        int clearedCount = 0;
+        for (int i = poolParent.childCount - 1; i >= 0; i--)
+        {
+            var child = poolParent.GetChild(i);
+            var hitScan = child.GetComponent<HitScan>();
+            
+            if (hitScan != null && child.gameObject.activeSelf)
+            {
+                Return(hitScan);
+                clearedCount++;
+            }
+        }
+    }   
 }
