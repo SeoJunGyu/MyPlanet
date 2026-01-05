@@ -28,6 +28,16 @@ public class ExplosionPoolManager : MonoBehaviour
         EnsurePool();
     }
 
+    private void OnDestroy()
+    {
+        if(Instance == this)
+        {
+            ClearAllActiveExplosions();
+            pool.Clear();
+            Instance = null;
+        }
+    }
+
     private void EnsurePool()
     {
         if (pool.HasPool(EXPLOSION_KEY)) return;
@@ -59,5 +69,25 @@ public class ExplosionPoolManager : MonoBehaviour
     {
         if (explosion == null) return;
         pool.Return(EXPLOSION_KEY, explosion);
+    }
+
+    public void ClearAllActiveExplosions()
+    {
+        if(poolParent == null)
+        {
+            return;
+        }
+
+        int clearedCount = 0;
+        for(int i = poolParent.childCount - 1; i >= 0; i--)
+        {
+            var child = poolParent.GetChild(i);
+            var explosion = child.GetComponent<Explosion>();
+            if(explosion != null && child.gameObject.activeSelf)
+            {
+                Return(explosion);
+                clearedCount++;
+            }
+        }
     }
 }
