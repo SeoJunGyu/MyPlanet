@@ -455,7 +455,7 @@ MonoBehaviour:
     - Texture
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6291fabac3ca85c41909d4d077a1c3bf
-    m_Address: 7_Wind
+    m_Address: Projectile_7_wind
     m_ReadOnly: 0
     m_SerializedLabels:
     - Prefab
@@ -479,7 +479,7 @@ MonoBehaviour:
     - Mesh
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 64e17baa08a61b646bbbf96692892b44
-    m_Address: 8_Energy
+    m_Address: Projectile_8_energy
     m_ReadOnly: 0
     m_SerializedLabels:
     - Prefab
@@ -966,6 +966,11 @@ MonoBehaviour:
     m_SerializedLabels:
     - Texture
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d894217d538a6364f81fd60e37a75f93
+    m_Address: EnemyTestScene
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: da1aed29e3ad4364dbe3766db84b12fe
     m_Address: 300007
     m_ReadOnly: 0
@@ -1059,11 +1064,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels:
     - Texture
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ef61d91e6d2d3be4b82811652fdfff74
-    m_Address: EnemyTestScene
-    m_ReadOnly: 0
-    m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f05a1f0fd5f2e544482fc82c1b187dff
     m_Address: DRIVER_C
