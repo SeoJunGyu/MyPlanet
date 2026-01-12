@@ -182,7 +182,12 @@ public class PowerUpItemControlUI : MonoBehaviour
             towerInfoUI.gameObject.SetActive(false);
             towerUpgradeSlotUI.gameObject.SetActive(false);
         }
-        GamePauseManager.Instance.Resume();
+
+        if (!isTutorial)
+        {
+            GamePauseManager.Instance.Resume();
+        }
+
         isTowerChoosingState = false;
     }
 
@@ -373,7 +378,11 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnDisable()
     {
-        GamePauseManager.Instance.Resume();
+        if (!isTutorial)
+        {
+            GamePauseManager.Instance.Resume();
+        }
+        
         numlist = null;
 
         Variables.OnQuasarChanged -= CheckQuasarForReactivation;
@@ -408,7 +417,7 @@ public class PowerUpItemControlUI : MonoBehaviour
 
     private void OnQuaserChanged()
     {
-        quasarText.text = $"퀘이사\nX{Variables.Quasar}";
+        quasarText.text = $"퀘이사 X{Variables.Quasar}";
     }
 
     //unlock

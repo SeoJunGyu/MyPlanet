@@ -21,9 +21,12 @@ public class TowerUpgradeUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI totalUpgradePercentText;
 
-    [SerializeField] private TextMeshProUGUI diamondText;
+    [SerializeField] private TextMeshProUGUI freeDiamondText;
+    [SerializeField] private TextMeshProUGUI chargedDiamondText;
     [SerializeField] private TextMeshProUGUI goldText;
     [SerializeField] private TextMeshProUGUI towerNameText;
+
+    [SerializeField] private ScrollRect towerScrollRect;
     private int totalUpgrade;
     public int TotalUpgrade => totalUpgrade;
 
@@ -51,8 +54,9 @@ public class TowerUpgradeUI : MonoBehaviour
         SetUpgradePercentText(totalUpgradePercent);
 
         // Update currency texts
-        diamondText.text = (UserData.ChargedDia + UserData.FreeDia).ToString();
-        goldText.text = UserData.Gold.ToString();
+        UpdateCurrencyTexts();
+
+        towerScrollRect.verticalNormalizedPosition = 1f;
     }
 
     private void OnTowerUpgradeUIClicked(int index)
@@ -99,6 +103,13 @@ public class TowerUpgradeUI : MonoBehaviour
         }
 
         return upgradedCount;
+    }
+
+    public void UpdateCurrencyTexts()
+    {
+        freeDiamondText.text = $"무료 {UserData.FreeDia}";
+        chargedDiamondText.text = $"유료 {UserData.ChargedDia}";
+        goldText.text = UserData.Gold.ToString();
     }
 
     private void OnTowerButtonClicked(int index)

@@ -97,11 +97,20 @@ public class TowerTargetingSystem : MonoBehaviour
 
             //Boss Enemy
             var enemy = target as Enemy;
-            if(enemy!=null)
+            if (enemy != null)
             {
                 if (!enemy.IsTargetable) continue;
-                if (enemy.Data == null) continue;
-                if (enemy.Data.EnemyType == 4 && Variables.MiddleBossEnemy != null) continue;
+
+                var data = enemy.Data;
+                if (data == null) continue;
+
+                if (data.EnemyType == 4 && Variables.MiddleBossEnemy != null) continue;
+
+                // neptune boss scene: elite dia 
+                int enemyId = data.Enemy_Id;
+                if (enemyId == 400218) continue;
+                if (enemyId == 400209) continue;
+                if (enemyId == 400210) continue;
             }
 
             //View Check

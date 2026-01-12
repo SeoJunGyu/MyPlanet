@@ -61,6 +61,9 @@ public static class SceneName
 public static class CategoryName
 {
     public static readonly string Gacha = "가챠";
+    public static readonly string DailyShop = "일일 상점";
+    public static readonly string ChargeDiaShop = "유료 다이아 상점";
+    public static readonly string PackageShop = "패키지 상점";
     public static readonly string Others = "다른 아이템 분류";
 }
 
@@ -162,7 +165,7 @@ public enum PatternIds
     EliteDiaReflectShield,
     EliteBigDiaReflectShield,
     UFOLazer,
-    GalaxyStarShot,
+    OortStarShot,
     SpaceWarmLazer,
     SpaceWarmGravityShot,
     FireChildHitChangeSpeedChase,
@@ -181,6 +184,7 @@ public enum PatternIds
     BlackHoleExplosionSummon,
     WhiteHoleSpaceWarmSummon,
     WhiteHoleShoot,
+    OortShoot,
     ConstellationShoot,
     ExplosionEnemy,
 }
@@ -188,19 +192,26 @@ public enum PatternIds
 public enum TutorialPoint
 {
     TopBig,
+    TopBigTwo,
     TopMidium,
     TopRight,
     TopRightTwo,
     TopLeftSmall,
     CenterMidium,
     CenterMidiumTwo,
+    CenterMidiumThree,
     BottomBig,
 }
 
 public enum ShopCategory
 {
     Gacha,
+    DailyShop,
+    ChargeDiaShop,
+    PackageShop,
     Others,
+
+    DailyShopRefresh = 100,
 }
 
 public enum RewardType
@@ -246,6 +257,13 @@ public enum Currency
     Gold = 711101,
     FreeDia = 711201,
     ChargedDia = 711202,
+}
+
+public enum ItemIds
+{
+    TowerUpgradeItem = 710201,
+    PlanetUpgradeItem = 710202,
+    PackageShopItem = 9999,
 }
 
 public enum PlanetAbilityType
@@ -298,6 +316,8 @@ public static class DataTableIds
     public static readonly string SpecialEffectText = "SpecialEffectTextTable";
     public static readonly string PlanetText = "PlanetTextTable";
     public static readonly string StageReward = "StageRewardTable";
+    public static readonly string DailyReroll = "DailyRerollTable";
+    public static readonly string ItemString = "ItemStringTable";
 }
 
 public static class Variables
@@ -354,6 +374,8 @@ public static class DatabaseRef
     public static readonly string UserAttackPowers = "userattackpowers";
     public static readonly string UserTowerUpgrades = "usertowerupgrades";
     public static readonly string UserStageData = "userstageclear";
+    public static readonly string UserShopItemData = "usershopitems";
+    public static readonly string UserMetaData = "usermetadata";
 }
 
 public static class PrintedAbility
@@ -411,4 +433,32 @@ public class GameStrings
     public static readonly string TowerUpgradePopupTitle = "타워 선택";
     public static readonly string Confirm = "확인";
     public static readonly string Choose = "선택";
+}
+
+public enum PackageType
+    {
+        StarterPack,
+
+        Count,
+    }
+
+public class PackageItems
+{
+    public static readonly Dictionary<int, string> PackageName = new Dictionary<int, string>
+    {
+        { (int)PackageType.StarterPack, "스타터 패키지" },
+    };
+
+    public static readonly Dictionary<int, (int itemId, int count)> NewPlayerPackage1 = new Dictionary<int, (int, int)>
+    {
+        { 0, ((int)Currency.ChargedDia, 1000) },
+        { 1, ((int)Currency.Gold, 50000) },
+        { 2, ((int)ItemIds.TowerUpgradeItem, 10) },
+        { 3, ((int)ItemIds.PlanetUpgradeItem, 10) },
+    };
+
+    public static readonly Dictionary<int, Dictionary<int, (int, int)>> PackageItemDict = new Dictionary<int, Dictionary<int, (int, int)>>
+    {
+        { (int)PackageType.StarterPack, NewPlayerPackage1 },
+    };
 }

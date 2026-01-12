@@ -27,6 +27,8 @@ public class Lazer : MonoBehaviour
 
     private IDamagable damageTarget;
 
+    private AudioSource laserAudioSource;
+
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -43,11 +45,13 @@ public class Lazer : MonoBehaviour
     private void OnDisable()
     {
         Cancel();
+        StopLaserSound();
     }
 
     private void OnDestroy()
     {
         Cancel();
+        StopLaserSound();
     }
 
     protected virtual void Setup()
@@ -56,6 +60,15 @@ public class Lazer : MonoBehaviour
         lineRenderer.startWidth = laserWidth;
         lineRenderer.endWidth = laserWidth;
         lineRenderer.useWorldSpace = true;
+    }
+
+    private void StopLaserSound()
+    {
+        if(laserAudioSource != null && SoundManager.Instance != null)
+        {
+            SoundManager.Instance.StopEnemyLaserLoop(laserAudioSource);
+            laserAudioSource = null;
+        }
     }
 
     public void Initialize(Vector3 startPosition, Vector3 direction, float damage, Action onEnd = null, float? customLength = null, CancellationToken token = default)
@@ -170,8 +183,12 @@ public class Lazer : MonoBehaviour
     private async UniTask AttackPhaseAsync(CancellationToken token)
     {
         fieldRenderer.enabled = false;
-
         lineRenderer.enabled = true;
+
+        if(SoundManager.Instance != null && SoundManager.Instance.IsInitialized)
+        {
+            laserAudioSource = SoundManager.Instance.PlayEnemyLaserLoop(transform.position);
+        }
 
         float elapsedTime = 0f;
         float tickTimer = 0f;
@@ -193,6 +210,8 @@ public class Lazer : MonoBehaviour
         }
 
         lineRenderer.enabled = false;
+
+        StopLaserSound();
     }
 
     private void CheckLazerCollision()

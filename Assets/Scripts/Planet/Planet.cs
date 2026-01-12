@@ -53,6 +53,8 @@ public class Planet : LivingEntity
     }
     private float drain;
     public float Drain => drain;
+    private float drainChance;
+    public float DrainChance => drainChance;
     private float expScale;
     private float recoveryHp;
 
@@ -109,6 +111,8 @@ public class Planet : LivingEntity
 
     private float lastHitSfxTime = -999f;
 
+    [SerializeField] private Material planetMaterial;
+
     private void Awake()
     {
         planetAttacks = new List<TowerAttack>();
@@ -126,9 +130,12 @@ public class Planet : LivingEntity
     //     MaxExp = DataTableManager.PlanetLevelUpTable.Get(level).Exp;
     // }
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
         ApplyPlanetVisual();
+
+        await UniTask.WaitUntil(() => PlanetStatManager.Instance != null && PlanetStatManager.Instance.IsInitialized,cancellationToken: this.GetCancellationTokenOnDestroy()).Timeout(TimeSpan.FromSeconds(5));
+
         ApplyPlanetStats();
     }
 
@@ -180,6 +187,7 @@ public class Planet : LivingEntity
         drain = currentStats.drain;
         expScale = currentStats.expRate == 0f ? 1f : currentStats.expRate;
         recoveryHp = currentStats.hpRegeneration;
+        drainChance = planetData.DrainChance;
 
         CalculatePlanetAttackPower();
     }
@@ -199,6 +207,16 @@ public class Planet : LivingEntity
             {
                 meshFilter.mesh = mesh;
             }
+        }
+
+        switch ((PlanetType)PlanetData.Planet_ID)
+        {
+            case PlanetType.BloodAbsorbPlanet:
+            case PlanetType.ShieldPlanet:
+            case PlanetType.HealthRegenerationPlanet:
+            case PlanetType.ExpPlanet:
+                gameObject.GetComponent<Renderer>().material = planetMaterial;
+                break;
         }
     }
 

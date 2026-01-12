@@ -35,11 +35,26 @@ public class PlanetInfoUI : MonoBehaviour
     [SerializeField] private Color canUpgradeColor;
 
     [SerializeField] private List<GameObject> unSelectIcon;
+    [SerializeField] private List<GameObject> unlockIcon;
+
+    [SerializeField] private GameObject outLineImage;
+    [SerializeField] private PlanetPanelUI planetPanelUI;
 
     private PlanetData currentPlanetData;
     private UserPlanetInfo currentUserPlanetInfo;
     private PlanetLvUpgradeData planetLvUpgradeData;
     private PlanetStarUpgradeData planetStarUpgradeData;
+
+    private void Awake()
+    {
+        for(int i = 0; i < unSelectIcon.Count; i++)
+        {
+            int index = i;
+            var btn = unSelectIcon[index].GetComponent<Button>();
+            btn.onClick.AddListener(() => OnPlanetBtnClick(index));
+            btn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        }
+    }
 
     private void OnEnable()
     {
@@ -55,10 +70,33 @@ public class PlanetInfoUI : MonoBehaviour
 
     public void Initialize(PlanetData planetData, UserPlanetInfo userPlanetInfo)
     {
+        if(PlanetManager.Instance.ActivePlanetId == planetData.Planet_ID)
+        {
+            outLineImage.SetActive(true);
+        }
+        else
+        {
+            outLineImage.SetActive(false);
+        }
+
         int selectIdx = planetData.Planet_ID - 300001;
         for(int i = 0; i < unSelectIcon.Count; i++)
         {
+            int checkPlanetId = 300001 + i;
+            var checkUserPlanetInfo = PlanetManager.Instance.GetPlanetInfo(checkPlanetId);
+
             unSelectIcon[i].SetActive(i != selectIdx);
+
+            if(i < unlockIcon.Count)
+            {
+                unlockIcon[i].SetActive(!checkUserPlanetInfo.owned);
+            }
+
+            var btn = unSelectIcon[i].GetComponent<Button>();
+            if(btn != null)
+            {
+                btn.interactable = checkUserPlanetInfo.owned;
+            }
         }
 
         currentPlanetData = planetData;
@@ -106,7 +144,7 @@ public class PlanetInfoUI : MonoBehaviour
             upgradeStars[i].SetActive(i < userPlanetInfo.starLevel);
         }
 
-        UpdatePieceSlider(planetData);
+        UpdatePieceSlider(planetData, currentUserPlanetInfo.starLevel);
         UpdateLevelUpButton();
 
         levelUpBtn.interactable = true;
@@ -114,8 +152,17 @@ public class PlanetInfoUI : MonoBehaviour
 
     }
 
-    private void UpdatePieceSlider(PlanetData planetData)
+    private void UpdatePieceSlider(PlanetData planetData, int starLevel)
     {
+        if(starLevel == PlanetManager.Instance.MaxStarLevel)
+        {
+            pieceText.text = $"MAX";
+            pieceSlider.fillRect.GetComponent<Image>().sprite = changePieceImage;
+            pieceSlider.maxValue = 1;
+            pieceSlider.value = 1;
+            return;
+        }
+
         int pieceId = planetData.PieceId;
 
         int currentPieces = ItemManager.Instance.GetItem(pieceId);
@@ -151,7 +198,7 @@ public class PlanetInfoUI : MonoBehaviour
                   (currentStats.hpRegeneration * 420) + 
                   (currentStats.drain * 650);
 
-        fightingPowerText.text = $"{Mathf.RoundToInt(cal)}";
+        fightingPowerText.text = FormatStat(cal);
     }
 
     private void UpdateStatsUI()
@@ -161,12 +208,12 @@ public class PlanetInfoUI : MonoBehaviour
         currentUserPlanetInfo.level, 
         currentUserPlanetInfo.starLevel);
 
-    healthText.text = $"{Mathf.RoundToInt(currentStats.hp)}";
-    defenseText.text = $"{Mathf.RoundToInt(currentStats.defense)}";
-    shieldText.text = $"{Mathf.RoundToInt(currentStats.shield)}";
-    expRateText.text = $"{Mathf.RoundToInt(currentStats.expRate)}%";
-    drainText.text = $"{Mathf.RoundToInt(currentStats.drain)}";
-    healthRegenerationText.text = $"{Mathf.RoundToInt(currentStats.hpRegeneration)}";
+        healthText.text = FormatStat(currentStats.hp);
+        defenseText.text = FormatStat(currentStats.defense);
+        shieldText.text = FormatStat(currentStats.shield);
+        expRateText.text = FormatStat(currentStats.expRate);
+        drainText.text = FormatStat(currentStats.drain);
+        healthRegenerationText.text = FormatStat(currentStats.hpRegeneration);
     }
 
     private void UpdateLevelUpButton()
@@ -179,5 +226,25 @@ public class PlanetInfoUI : MonoBehaviour
         {
             levelUpBtn.gameObject.GetComponent<Image>().color = canUpgradeColor;
         }
+    }
+
+    private void OnPlanetBtnClick(int iconIndex)
+    {
+        int planetId = 300001 + iconIndex;
+
+        var planetData = DataTableManager.PlanetTable.Get(planetId);
+        var userPlanetInfo = PlanetManager.Instance.GetPlanetInfo(planetId);
+
+        Initialize(planetData, userPlanetInfo);
+
+        if(planetPanelUI != null)
+        {
+            planetPanelUI.SetChoosedIndex(iconIndex + 1);
+        }
+    }
+
+    private string FormatStat(float value)
+    {
+        return value % 1 == 0 ? $"{value:F0}" : $"{value:F1}";
     }
 }

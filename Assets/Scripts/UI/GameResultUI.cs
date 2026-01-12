@@ -35,12 +35,14 @@ public class GameResultUI : MonoBehaviour
     [SerializeField] private GameObject detailPanel;
     [SerializeField] private Button detailButton;
 
-    [SerializeField] private List<Image> rewardItemImages;
-    [SerializeField] private List<TextMeshProUGUI> rewardItemTexts;
     [SerializeField] private Planet planet;
 
     private StageData currentStageData;
     private bool isGameClear = false;
+
+    [SerializeField] private List<GameObject> rewardObj;
+    private List<Image> itemImages = new List<Image>();
+    private List<TextMeshProUGUI> item1Texts = new List<TextMeshProUGUI>();
 
     void Start()
     {
@@ -49,6 +51,12 @@ public class GameResultUI : MonoBehaviour
         restartButton?.onClick.AddListener(OnRestartCliecked);
         checkButton?.onClick.AddListener(OnReturnToTitleClicked);
         detailButton?.onClick.AddListener(OnOpenDetailPanelClicked);
+
+        foreach(var obj in rewardObj)
+        {
+            itemImages.Add(obj.transform.GetChild(0).GetComponent<Image>());
+            item1Texts.Add(obj.transform.GetChild(1).GetComponent<TextMeshProUGUI>());
+        }
     }
 
     private void OnOpenDetailPanelClicked()
@@ -83,12 +91,7 @@ public class GameResultUI : MonoBehaviour
             enemyKillText.text = $"{enemyKillCount}";
         }
 
-        ProcessWaveGold().Forget();
-
-        if (gameClear)
-        {
-            ProcessStageRewards().Forget();
-        }
+        ProcessRewards().Forget();
     }
 
     public void SetRewardItems(List<(int itemId, int itemCount)> dropItems)
@@ -127,85 +130,146 @@ public class GameResultUI : MonoBehaviour
         SceneControlManager.Instance.LoadScene(SceneName.LobbyScene).Forget();
     }
 
-    private async UniTask ProcessStageRewards()
+    private async UniTask ProcessRewards()
     {
-        await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserPlanetManager.Instance.IsInitialized && UserStageManager.Instance.IsInitialized);
-        
-        if(currentStageData == null)
-        {
-            return;
-        }
+        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserStageManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsInitialized);
 
         int highestCleared = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
-        bool isFirstClear = Variables.Stage > highestCleared;
+        bool isFirstClear = Variables.Stage >= highestCleared;
 
-        int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
-
-        var rewardData = DataTableManager.StageRewardTable.Get(rewardId);
-        if(rewardData == null)
+        if(isGameClear && currentStageData != null)
         {
-            return;
-        }
+            int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
 
-        PrecessRewards(rewardData);
+            var rewardData = DataTableManager.StageRewardTable.Get(rewardId);
+            if(rewardData != null)
+            {
+                ProcessStageRewardData(rewardData);
+            }
+        }
 
         await SaveAllDataToFirebase();
 
-        if (isFirstClear)
+        if (isGameClear && isFirstClear)
         {
-            await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage);
+            await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage + 1);
         }
     }
 
-    private void PrecessRewards(StageRewardData rewardData)
+    private void ProcessStageRewardData(StageRewardData rewardData)
     {
-        if(rewardData.Target_Id_1 != 0 && rewardData.RewardQty_1 > 0)
+        int rewardCount = DataTableManager.StageRewardTable.GetRewardCount(rewardData.StageReward_Id);
+        List<(Image, TextMeshProUGUI)> rewardUIList = new List<(Image, TextMeshProUGUI)>();
+
+        switch (rewardCount)
         {
-            AddRewardByTargetId(rewardData.Target_Id_1, rewardData.RewardQty_1);
+            case 1:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                for(int i = 1; i < rewardObj.Count; i++)
+                {
+                    rewardObj[i].SetActive(false);
+                }
+                break;
+            case 2:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                rewardUIList.Add((itemImages[2], item1Texts[2]));
+                for (int i = 1; i < rewardObj.Count; i++)
+                {
+                    if(i == 2) continue;
+
+                    rewardObj[i].SetActive(false);
+                }
+                break;
+            case 3:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                rewardUIList.Add((itemImages[1], item1Texts[1]));
+                rewardUIList.Add((itemImages[2], item1Texts[2]));
+                for (int i = 3; i < rewardObj.Count; i++)
+                {
+                    rewardObj[i].SetActive(false);
+                }
+                break;
+            case 4:
+                rewardUIList.Add((itemImages[0], item1Texts[0]));
+                rewardUIList.Add((itemImages[2], item1Texts[2]));
+                rewardUIList.Add((itemImages[3], item1Texts[3]));
+                rewardUIList.Add((itemImages[4], item1Texts[4]));
+                
+                rewardObj[1].SetActive(false);
+                break;
+            case 5:
+                for (int i = 0; i < rewardObj.Count; i++)
+                {
+                    rewardUIList.Add((itemImages[i], item1Texts[i]));
+                }
+                break;
         }
 
-        if(rewardData.Target_Id_2 != 0 && rewardData.RewardQty_2 > 0)
+        for(int i = 0; i < rewardCount; i++)
         {
-            AddRewardByTargetId(rewardData.Target_Id_2, rewardData.RewardQty_2);
-        }
+            int targetId = 0;
+            int quantity = 0;
 
-        if(rewardData.Target_Id_3 != 0 && rewardData.RewardQty_3 > 0)
-        {
-            AddRewardByTargetId(rewardData.Target_Id_3, rewardData.RewardQty_3);
+            switch(i)
+            {
+                case 0:
+                    targetId = rewardData.Target_Id_1;
+                    quantity = rewardData.RewardQty_1;
+                    break;
+                case 1:
+                    targetId = rewardData.Target_Id_2;
+                    quantity = rewardData.RewardQty_2;
+                    break;
+                case 2:
+                    targetId = rewardData.Target_Id_3;
+                    quantity = rewardData.RewardQty_3;
+                    break;
+                case 3:
+                    targetId = rewardData.Target_Id_4;
+                    quantity = rewardData.RewardQty_4;
+                    break;
+                case 4:
+                    targetId = rewardData.Target_Id_5;
+                    quantity = rewardData.RewardQty_5;
+                    break;
+            }
+
+            int actualAmount = AddRewardByTargetId(targetId, quantity, i);
+            rewardUIList[i].Item2.text = $"x{actualAmount}";
         }
+        
     }
 
-    private void AddRewardByTargetId(int targetId, int quantity)
+    private int AddRewardByTargetId(int targetId, int quantity, int index)
     {
-        if(targetId >= 300000 && targetId < 400000) // 행성
+        int actualAmount = quantity;
+
+        if(targetId == 711101)
         {
-            UserDataMapper.AddPlanet(targetId);
-            Debug.Log($"[GameResult] 행성 보상: ID={targetId}");
+            int waveGold = WaveManager.Instance.TotalAccumulatedGold;
+            actualAmount = quantity + waveGold;
+            UserData.Gold += quantity + waveGold;
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.CurrencyTable.Get(targetId).CurrencyIconText);
         }
-        else if(targetId == 711101) // 골드
-        {
-            UserData.Gold += quantity;
-            Debug.Log($"[GameResult] 골드 보상: +{quantity}");
-        }
-        else if(targetId == 711201) // 무료 다이아
+        else if(targetId == 711201)
         {
             UserData.FreeDia += quantity;
-            Debug.Log($"[GameResult] 무료 다이아 보상: +{quantity}");
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.CurrencyTable.Get(targetId).CurrencyIconText);
         }
-        else if(targetId == 711202) // 유료 다이아
+        else if(targetId == 711202)
         {
             UserData.ChargedDia += quantity;
-            Debug.Log($"[GameResult] 유료 다이아 보상: +{quantity}");
-        }
-        else if(targetId >= 710000 && targetId < 711000) // 아이템
-        {
-            UserDataMapper.AddItem(targetId, quantity);
-            Debug.Log($"[GameResult] 아이템 보상: ID={targetId}, Qty={quantity}");
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.CurrencyTable.Get(targetId).CurrencyIconText);
         }
         else
         {
-            Debug.LogWarning($"[GameResult] 알 수 없는 보상 ID: {targetId}");
+            UserDataMapper.AddItem(targetId, quantity);
+            itemImages[index].sprite = LoadManager.GetLoadedGameTexture(DataTableManager.ItemTable.Get(targetId).ItemIconText);
         }
+
+        return actualAmount;
     }
 
     private async UniTask SaveAllDataToFirebase()
@@ -216,16 +280,5 @@ public class GameResultUI : MonoBehaviour
         await ItemManager.Instance.SaveItemsAsync();
 
         await PlanetManager.Instance.SavePlanetsAsync();
-    }
-
-    private async UniTask ProcessWaveGold()
-    {
-        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
-
-        int waveGold = WaveManager.Instance.AccumulateGold;
-        if(waveGold > 0)
-        {
-            UserData.Gold += waveGold;
-        }
     }
 }

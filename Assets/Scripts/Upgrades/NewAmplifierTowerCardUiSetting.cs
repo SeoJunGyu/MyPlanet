@@ -14,12 +14,20 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
     [SerializeField] private RectTransform[] contentRoots;
     [SerializeField] private TextMeshProUGUI[] abilityTexts;
     [SerializeField] private TextMeshProUGUI[] abilityValueTexts;
+    [SerializeField] private Image[] abilityIcons;
 
     [SerializeField] private TextMeshProUGUI leftAbilitySlotText;
     [SerializeField] private TextMeshProUGUI rightAbilitySlotText;
 
+    [SerializeField] private List<GameObject> selfAbilityPanels;
+
     public void SettingNewTowerCard(int towerId, int ability, List<int> leftPoints, List<int> rightPoints)
     {
+        foreach (var panel in selfAbilityPanels)
+        {
+            panel.SetActive(false);
+        }
+
         var amplifierTowerData = DataTableManager.BuffTowerTable.Get(towerId);
 
         // var towerName = amplifierTowerData.BuffTowerName;
@@ -62,6 +70,7 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
 
         var abilityName = abilityData.RandomAbilityName;
         var abilityValue = abilityData.SpecialEffectValue;
+        var specialData = DataTableManager.SpecialEffectTable.Get(abilityData.SpecialEffect_ID);
 
         var index = 0;
 
@@ -75,13 +84,18 @@ public class NewAmplifierTowerCardUiSetting : MonoBehaviour
 
             var effectDataId = DataTableManager.RandomAbilityTable.GetAbilityIdFromEffectId(specialEffectIDs[i]);
             var effectData = DataTableManager.RandomAbilityTable.Get(effectDataId);
+            var specialEffectData = DataTableManager.SpecialEffectTable.Get(specialEffectIDs[i]);
+
+            selfAbilityPanels[i].SetActive(true);
             abilityTexts[index].text = effectData.RandomAbilityName;
             abilityValueTexts[index].text = specialEffectValues[i].ToString();
+            abilityIcons[index].sprite = LoadManager.GetLoadedGameTexture(specialEffectData.SpecialEffectIcon);
             index++;
         }
 
         abilityTexts[index].text = abilityName;
         abilityValueTexts[index].text = abilityValue.ToString();
+        abilityIcons[index].sprite = LoadManager.GetLoadedGameTexture(specialData.SpecialEffectIcon);
         index++;
 
         for (int i = index; i < contentRoots.Length; i++)

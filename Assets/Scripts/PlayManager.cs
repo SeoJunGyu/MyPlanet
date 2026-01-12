@@ -35,6 +35,12 @@ public class PlayManager : MonoBehaviour
     {
         if (hasEnded) return;
 
+        if (waveManager == null)
+        {
+            Debug.LogError("[PlayManager] waveManager is NULL. Scene에 WaveManager가 있는지/인스펙터 할당됐는지 확인");
+            return;
+        }
+
         if (waveManager.IsCleared)
         {
             GameClear();
@@ -72,16 +78,6 @@ public class PlayManager : MonoBehaviour
         }
 
         SoundManager.Instance.PlayVictorySound();
-
-        var currentLastCelearedStage = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
-        if (Variables.Stage == currentLastCelearedStage)
-        {
-            var result = await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage + 1);
-            if (!result)
-            {
-                Debug.LogError("Failed to save stage clear data.");
-            }
-        }
 
         if (gameOverUI != null)
         {

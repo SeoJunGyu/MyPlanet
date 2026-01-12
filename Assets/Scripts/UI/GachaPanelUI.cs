@@ -12,8 +12,10 @@ public class GachaPanelUI : MonoBehaviour
     private int drawCount = 0;
     private int needCurrencyValue = 0;
 
+    [SerializeField] private GameObject gachaPanel;
     [SerializeField] private Button backBtn;
     [SerializeField] private TextMeshProUGUI gachaNameText;
+    [SerializeField] private Image currencyIconImage;
     [SerializeField] private Button buyOnceBtn;
     [SerializeField] private Button buyTenBtn;
 
@@ -24,7 +26,7 @@ public class GachaPanelUI : MonoBehaviour
     [SerializeField] private Button confirmNoBtn;
 
     [SerializeField] private GameObject gachaOncePanelUI;
-    [SerializeField] private TextMeshProUGUI rewardNameText;
+    [SerializeField] private Image rewardIcon;
     [SerializeField] private TextMeshProUGUI rewardOnceText;
     [SerializeField] private Button exitRewardOnceBtn;
 
@@ -48,6 +50,8 @@ public class GachaPanelUI : MonoBehaviour
         drawCount = 0;
 
         gachaNameText.text = gachaName;
+
+        currencyIconImage.sprite = LoadManager.GetLoadedGameTexture(drawGroup.ToString());
 
         ResetBtn();
 
@@ -95,13 +99,16 @@ public class GachaPanelUI : MonoBehaviour
             Destroy(obj);
         }
         instantiatedRewardTenObjects.Clear();
+
+        gachaPanel.SetActive(true);
     }
 
     private void OnConfirm(string gachaName, int drawCount)
     {
-        confirmGachaText.text = $"{gachaName}를 x{drawCount}회 돌리시겠습니까?";
+        confirmGachaText.text = $"{gachaName}를 x{drawCount}회\n돌리시겠습니까?";
         noCurrencyText.SetActive(false);
         gachaConfirmUI.SetActive(true);
+        gachaPanel.SetActive(false);
     }
 
     private void OnBackBtnClicked()
@@ -110,6 +117,7 @@ public class GachaPanelUI : MonoBehaviour
 
         gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
+        gachaPanel.SetActive(true);
         gameObject.SetActive(false);
     }
 
@@ -117,6 +125,7 @@ public class GachaPanelUI : MonoBehaviour
     {
         gachaOncePanelUI.SetActive(false);
         gachaTenPanelUI.SetActive(false);
+        gachaPanel.SetActive(true);
 
         rewardResults.Clear();
 
@@ -150,7 +159,17 @@ public class GachaPanelUI : MonoBehaviour
             {
                 foreach(var reward in rewardResults)
                 {
-                    rewardNameText.text = reward.Key.RewardNameText;
+                    string iconText = "";
+                    if(reward.Key.Target_Id > 300000 && reward.Key.Target_Id < 400000)
+                    {
+                        iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
+                    }
+                    else
+                    {
+                        iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                    }
+                    
+                    rewardIcon.sprite = LoadManager.GetLoadedGameTexture(iconText);
                     rewardOnceText.text = $"x{reward.Value}";
                 }
 
@@ -175,13 +194,33 @@ public class GachaPanelUI : MonoBehaviour
 
                     if (left == 0)
                     {
+                        string iconText = "";
+                        if(reward.Key.Target_Id > 300000 && reward.Key.Target_Id < 400000)
+                        {
+                            iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
+                        }
+                        else
+                        {
+                            iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                        }
+                        
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
-                        verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value);
+                        verticalGachaPanelUI.SetLeftItem(reward.Key.RewardNameText, reward.Value, iconText);
                     }
                     else if (left == 1)
                     {
+                        string iconText = "";
+                        if(reward.Key.Target_Id > 300000 && reward.Key.Target_Id < 400000)
+                        {
+                            iconText = DataTableManager.PlanetTable.Get(reward.Key.Target_Id).PlanetIcon;
+                        }
+                        else
+                        {
+                            iconText = reward.Key.Target_Id == 711201 ? DataTableManager.CurrencyTable.Get(reward.Key.Target_Id).CurrencyIconText : DataTableManager.ItemTable.Get(reward.Key.Target_Id).ItemIconText;
+                        }
+
                         var verticalGachaPanelUI = rewardTenObj.GetComponentInChildren<VerticalCachaPanelUI>();
-                        verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value);
+                        verticalGachaPanelUI.SetRightItem(reward.Key.RewardNameText, reward.Value, iconText);
                     }
 
                     left++;
@@ -209,6 +248,7 @@ public class GachaPanelUI : MonoBehaviour
     {
         gachaConfirmUI.SetActive(false);
         noCurrencyText.SetActive(false);
+        gachaPanel.SetActive(true);
     }
 
     private bool TryPay()

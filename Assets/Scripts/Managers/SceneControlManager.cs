@@ -47,7 +47,9 @@ public class SceneControlManager : MonoBehaviour
 
     public async UniTask LoadScene(string sceneName, List<UniTask> additionalTasks = null)
     {
-        SoundManager.Instance.StopBGM();
+        SoundManager.Instance.StopAllSounds();
+
+        FxManager.Instance?.ClearAllActiveFx();
 
         loadingCanvas.SetActive(true);
         IsLoading = true;

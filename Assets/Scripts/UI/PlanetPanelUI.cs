@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.CompilerServices;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -29,8 +31,16 @@ public class PlanetPanelUI : MonoBehaviour
 
     [SerializeField] private GameObject selectPlanetIcons;
 
+    [SerializeField] private GameObject planetInstallSuccessPanel;
+    [SerializeField] private Button ConfirmBtn;
+
+    [SerializeField] private GameObject planetSelectPanel;
+
+    [SerializeField] private ScrollRect planetScrollRect;
+
     private int choosedIndex = -1;
 
+    private CancellationTokenSource autoCloseCts;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -49,6 +59,7 @@ public class PlanetPanelUI : MonoBehaviour
         homeBtn.onClick.AddListener(OnHomeBtnClicked);
         starLevelUpBtn.onClick.AddListener(OnStarUpgradeButtonClicked);
         levelUpBtn.onClick.AddListener(OnLevelUpgradeButtonClicked);
+        ConfirmBtn.onClick.AddListener(OnConfirmBtnClicked);
 
         AddBtnSound();
 
@@ -58,6 +69,7 @@ public class PlanetPanelUI : MonoBehaviour
         starUpgradePanel.SetActive(false);
         levelUpgradePanel.SetActive(false);
         selectPlanetIcons.SetActive(false);
+        planetInstallSuccessPanel.SetActive(false);
     }
 
     private void AddBtnSound()
@@ -69,6 +81,7 @@ public class PlanetPanelUI : MonoBehaviour
         homeBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         starLevelUpBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
         levelUpBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
+        ConfirmBtn.onClick.AddListener(() => SoundManager.Instance.PlayClickSound());
 
         for (int i = 0; i < planetButtons.Length; i++)
         {
@@ -89,6 +102,25 @@ public class PlanetPanelUI : MonoBehaviour
         planetInfoPanel.SetActive(false);
 
         RefreshPlanetPanelUI();
+
+        planetScrollRect.verticalNormalizedPosition = 1f;
+    }
+
+    private void OnDisable()
+    {
+        Cancel();
+    }
+
+    private void OnDestroy()
+    {
+        Cancel();
+    }
+
+    private void Cancel()
+    {
+        autoCloseCts?.Cancel();
+        autoCloseCts?.Dispose();
+        autoCloseCts = new CancellationTokenSource();
     }
 
     public void OnBackBtnClicked()
@@ -98,6 +130,7 @@ public class PlanetPanelUI : MonoBehaviour
             planetInfoPanel.SetActive(false);
             titleText.text = "행성";
             selectPlanetIcons.SetActive(false);
+            planetSelectPanel.SetActive(true);
             return;
         }
         else if(starUpgradePanel.activeSelf)
@@ -135,6 +168,8 @@ public class PlanetPanelUI : MonoBehaviour
         titleText.text = "행성 강화";
 
         selectPlanetIcons.SetActive(true);
+
+        planetSelectPanel.SetActive(false);
     }
 
     public void OnStarUpgradeButtonClicked()
@@ -159,11 +194,6 @@ public class PlanetPanelUI : MonoBehaviour
         levelUpgradePanel.GetComponent<PlanetLevelUpgradeUI>().Initialize(DataTableManager.PlanetTable.Get(planetId),PlanetManager.Instance.GetPlanetInfo(planetId));
 
         titleText.text = "행성 레벨업";
-    }
-
-    public void OnChoosePlanetBtnClicked()
-    {
-        saveConfirmPanel.SetActive(true);
     }
 
     public async UniTaskVoid OnSaveYesBtnClicked()
@@ -210,6 +240,9 @@ public class PlanetPanelUI : MonoBehaviour
     {
         lobbyPanel.SetActive(true);
         planetInfoPanel.SetActive(false);
+        titleText.text = "행성";
+        selectPlanetIcons.SetActive(false);
+        planetSelectPanel.SetActive(true);
         gameObject.SetActive(false);
     }
 
@@ -261,11 +294,6 @@ public class PlanetPanelUI : MonoBehaviour
 
     private  async UniTaskVoid OnInstallBtnClicked()
     {
-        planetInfoPanel.SetActive(false);
-        saveConfirmPanel.SetActive(false);
-        lobbyPanel.SetActive(true);
-        gameObject.SetActive(false);
-
         if (AuthManager.Instance == null || !AuthManager.Instance.IsSignedIn)
             return;
 
@@ -287,9 +315,63 @@ public class PlanetPanelUI : MonoBehaviour
         {
             PlanetStatManager.Instance.UpdateCurrentPlanetStats();
         }
-        
-        await PlanetManager.Instance.SavePlanetsAsync();
-        await UserPlanetManager.Instance.UpdateUserPlanetAsync(userPlanetData);
-        await UserAttackPowerManager.Instance.UpdatePlanetPower(userPlanetData);
+
+        RefreshPlanetPanelUI();
+
+        if (planetInfoPanel.activeSelf)
+        {
+            var planetData = DataTableManager.PlanetTable.Get(planetId);
+            planetInfoPanel.GetComponent<PlanetInfoUI>().Initialize(planetData, userPlanetInfo);
+        }
+
+        planetInstallSuccessPanel.SetActive(true);
+
+        AutoClosePanel().Forget();
+
+        SaveInstallDataAsync(userPlanetData).Forget();
+    }
+
+    private void OnConfirmBtnClicked()
+    {
+        Cancel();
+
+        planetInstallSuccessPanel.SetActive(false);
+    }
+
+    private async UniTaskVoid AutoClosePanel()
+    {
+        Cancel();
+
+        try
+        {
+            await UniTask.Delay(3000, cancellationToken: autoCloseCts.Token);
+            planetInstallSuccessPanel.SetActive(false);
+        }
+        catch (System.OperationCanceledException)
+        {
+            // Handle cancellation if needed
+        }
+    }  
+
+    private async UniTaskVoid SaveInstallDataAsync(UserPlanetData userPlanetData)
+    {
+        try
+        {
+            await PlanetManager.Instance.SavePlanetsAsync();
+            await UserPlanetManager.Instance.UpdateUserPlanetAsync(userPlanetData);
+            await UserAttackPowerManager.Instance.UpdatePlanetPower(userPlanetData);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"SaveInstallDataAsync failed: {e.Message}");
+        }
+    }
+
+    public void SetChoosedIndex(int planetIndex)
+    {
+        choosedIndex = planetIndex;
+
+        int planetId = 300000 + planetIndex;
+        SetPlanetName(DataTableManager.PlanetTable.Get(planetId).PlanetName);
     }
 }

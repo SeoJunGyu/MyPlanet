@@ -48,8 +48,16 @@ public class LobbyTowerUpgrade : MonoBehaviour
     }
 #endif
 
+    private void OnDisable()
+    {
+        confirmPanel.SetActive(false);
+        confirmButton.interactable = true;
+    }
+
     private async UniTaskVoid OnClickConfirmButton()
     {
+        confirmButton.interactable = false;
+
         var currentUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
         var towerIndex = currentUpgradeData.towerIds.IndexOf(towerId);
 
@@ -105,6 +113,8 @@ public class LobbyTowerUpgrade : MonoBehaviour
         await ItemManager.Instance.SaveItemsAsync();
         await CurrencyManager.Instance.SaveCurrencyAsync();
 
+        towerUpgradeUI.UpdateCurrencyTexts();
+
         confirmPanel.SetActive(false);
 
         await UserAttackPowerManager.Instance.UpdateTowerPower();
@@ -112,6 +122,19 @@ public class LobbyTowerUpgrade : MonoBehaviour
 
     private void OnClickUpgradeButton()
     {
+        var currentUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
+        var towerIndex = currentUpgradeData.towerIds.IndexOf(towerId);
+
+        if (towerIndex == -1)
+            return;
+
+        var upgradeLevel = currentUpgradeData.upgradeLevels[towerIndex];
+        if (upgradeLevel >= 4)
+        {
+            Debug.Log("최대 레벨 도달");
+            return;
+        }
+
         if (UserData.Gold < upgradeGold)
         {
             Debug.Log("골드 부족");
@@ -130,19 +153,8 @@ public class LobbyTowerUpgrade : MonoBehaviour
             return;
         }
 
-        var currentUpgradeData = UserTowerUpgradeManager.Instance.CurrentTowerUpgradeData;
-        var towerIndex = currentUpgradeData.towerIds.IndexOf(towerId);
-
-        if (towerIndex == -1)
-            return;
-
-        var upgradeLevel = currentUpgradeData.upgradeLevels[towerIndex];
-        if (upgradeLevel >= 4)
-        {
-            Debug.Log("최대 레벨 도달");
-            return;
-        }
         confirmPanel.SetActive(true);
+        confirmButton.interactable = true;
     }
 
     public void SetGoldRequiredText(int amount)

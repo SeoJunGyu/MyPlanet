@@ -36,6 +36,7 @@ public class PlanetStatManager : MonoBehaviour
     private async UniTaskVoid Start()
     {
         await UniTask.WaitUntil(() => PlanetManager.Instance != null && PlanetManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => DataTableManager.IsInitialized);
 
         UpdateCurrentPlanetStats();
 
@@ -108,8 +109,8 @@ public class PlanetStatManager : MonoBehaviour
 
         return new PlanetStats
         (
-            Mathf.Round(levelHp),
-            Mathf.Round(levelDefense),
+            levelHp,
+            levelDefense,
             0,
             0,
             0,
@@ -190,12 +191,12 @@ public class PlanetStatManager : MonoBehaviour
 
         return new PlanetStats
         (
-            Mathf.Round(tempHp),
-            Mathf.Round(tempDefense),
-            Mathf.Round(starShield),
-            Mathf.Round(starExpRate),
-            Mathf.Round(starDrain),
-            Mathf.Round(starHpRegeneration)
+            tempHp,
+            tempDefense,
+            starShield,
+            starExpRate,
+            starDrain,
+            starHpRegeneration
         );
     }
 

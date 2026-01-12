@@ -415,6 +415,7 @@ public class SoundManager : MonoBehaviour
     public void PlayEnemyLaser(Vector3 pos) => PlaySfx(enemyLaser, pos, (int)SoundPriority.High);
     public void PlaySunFireball(Vector3 pos) => PlaySfx(sunFireball, pos, (int)SoundPriority.High);
     public void PlayBossAppear(Vector3 pos) => PlaySfx(bossAppear, pos, (int)SoundPriority.Critical);
+    public void PlayEnemyHit(Vector3 pos) => PlaySfx(enemyHit, pos, (int)SoundPriority.High);
 
     public void PlayLevelUpSound() => sfxButtonSource.PlayOneShot(levelUpSound);
     public void PlayQuasarSelect() => sfxButtonSource.PlayOneShot(quasarSelect);
@@ -454,6 +455,150 @@ public class SoundManager : MonoBehaviour
     public void ResumeBgm()
     {
         bgmSource.UnPause();
+    }
+
+    public void PauseGameSound()
+    {
+        foreach(var source in audioPool)
+        {
+            if(source != null && source.isPlaying)
+            {
+                source.Pause();
+            }
+        }
+
+        foreach(var kv in playing)
+        {
+            if(kv.Key != null && kv.Key.isPlaying)
+            {
+                kv.Key.Pause();
+            }
+        }
+
+        
+    }
+
+    public void ResumeGameSound()
+    {
+        foreach (var source in audioPool)
+        {
+            if (source != null)
+            {
+                source.UnPause();
+            }
+        }
+
+        foreach (var kv in playing)
+        {
+            if (kv.Key != null)
+            {
+                kv.Key.UnPause();
+            }
+        }
+    }
+
+    public AudioSource PlayLaserShotLoop(Vector3 pos)
+    {
+        if(laserShot == null)
+        {
+            return null;
+        }
+
+        var source = GetSource((int)SoundPriority.Normal);
+        if(source == null)
+        {
+            return null;
+        }
+
+        source.transform.position = pos;
+        source.clip = laserShot;
+        source.loop = true;
+        source.Play();
+
+        playing[source] = laserShot;
+
+        return source;
+    }
+
+    public void StopLaserShotLoop(AudioSource source)
+    {
+        if(source == null)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = null;
+        source.loop = false;
+        playing.Remove(source);
+        ReturnSource(source);
+    }
+
+    public AudioSource PlayEnemyLaserLoop(Vector3 pos)
+    {
+        if (enemyLaser == null)
+        {
+            return null;
+        }
+
+        var source = GetSource((int)SoundPriority.High);
+        if (source == null)
+        {
+            return null;
+        }
+
+        source.transform.position = pos;
+        source.clip = enemyLaser;
+        source.loop = true;
+        source.Play();
+
+        playing[source] = enemyLaser;
+
+        return source;
+    }
+
+    public void StopEnemyLaserLoop(AudioSource source)
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        source.Stop();
+        source.clip = null;
+        source.loop = false;
+        playing.Remove(source);
+        ReturnSource(source);
+    }
+
+    public void StopAllSounds()
+    {
+        bgmSource.Stop();
+
+        sfxButtonSource.Stop();
+
+        foreach(var kv in playing)
+        {
+            if(kv.Key != null)
+            {
+                kv.Key.Stop();
+                kv.Key.clip = null;
+                kv.Key.loop = false;
+            }
+        }
+
+        playing.Clear();
+
+        List<AudioSource> activeSources = new List<AudioSource>(playing.Keys);
+        foreach(var kv in playing)
+        {
+            activeSources.Add(kv.Key);
+        }
+
+        foreach(var source in activeSources)
+        {
+            ReturnSource(source);
+        }
     }
     
 

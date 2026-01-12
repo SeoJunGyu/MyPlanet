@@ -31,7 +31,9 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     private float defense;
     private float moveSpeed;
     private float ratePenetration;
+    public float RatePenetrate => ratePenetration;
     private float fixedPenetration;
+    public float FixedPenetrate => fixedPenetration;
     private Vector3 originalScale;
     private float lifeTime = 45f;
     public float LifeTime => lifeTime;
@@ -161,6 +163,8 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
 
     public override void OnDamage(float damage)
     {
+        SoundManager.Instance.PlayEnemyHit(transform.position);
+
         if(isInvincible)
         {
             return;
@@ -170,10 +174,7 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         {
             return;
         }
-
         DpsCalculator.AddDamage(damage);
-
-        planet.Health += damage * planet.Drain;
 
         base.OnDamage(damage);
 
@@ -188,6 +189,27 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
     public override void Die()
     {
         base.Die();
+
+        if(planet != null)
+        {
+            float drainChange = (enemyType == 3 || enemyType == 4) ? 1f : planet.DrainChance;
+
+            if(UnityEngine.Random.value <= drainChange)
+            {
+                switch (enemyType)
+                {
+                    case 1:
+                    case 3:
+                        planet.Health += planet.Drain;
+                        break;
+                    case 2:
+                    case 4:
+                        planet.Health += planet.Drain * 2f;
+                        break;
+                    
+                }
+            }
+        }
 
         BossDie(data.EnemyType);
 
@@ -244,11 +266,6 @@ public class Enemy : LivingEntity, ITargetable , IDisposable
         if(other.CompareTag("PatternLine"))
         {
             OnPatternLineTrigger();
-        }
-
-        if(other.CompareTag(TagName.Planet))
-        {
-            Debug.Log("Planet");
         }
 
         if(other.CompareTag(TagName.CenterStone) || data.EnemyType == 4 || data.EnemyType == 3)

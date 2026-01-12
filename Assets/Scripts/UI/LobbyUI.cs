@@ -40,8 +40,10 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private Button debugCloseAllStagesBtn;
     [SerializeField] private Button balanceTestBtn;
 
-    private void Start()
+    private async UniTaskVoid Start()
     {
+        await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserStageManager.Instance.IsInitialized);
+
         ResetBtn();
 
         stageContent = stageScrollRect.content;
@@ -75,6 +77,8 @@ public class LobbyUI : MonoBehaviour
             settingPanel.gameObject.SetActive(false);
             settingPanel.Initialize();
         }
+
+        SetInitialStagePosition();
     }
 
     private void OnBalanceTestClicked()
@@ -243,5 +247,27 @@ public class LobbyUI : MonoBehaviour
     {
         settingPanel.LoadCurrentSettings();
         settingPanel.gameObject.SetActive(true);
+    }
+
+    public void MoveEnemyTestScene()
+    {
+        SceneControlManager.Instance.LoadScene(SceneName.EnemyTestScene).Forget();
+    }
+
+    private async void SetInitialStagePosition()
+    {
+        await UniTask.DelayFrame(1);
+
+        snapToCenter.RebuildItems();
+
+        await UniTask.DelayFrame(1);
+
+        int nextStageIndex = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
+
+        int stageCount = DataTableManager.StageTable.GetStageCount();
+
+        nextStageIndex = Mathf.Clamp(nextStageIndex, 1, stageCount);
+
+        snapToCenter.SettingAtIndex(nextStageIndex);
     }
 }
