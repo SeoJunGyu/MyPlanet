@@ -43,8 +43,6 @@ public class AttackTowerSyncEditor
             so.projectileCount = Mathf.RoundToInt(row.ProjectileNum); 
             so.randomAbilityGroupId = row.RandomAbilityGroup_ID;
             so.projectileIdFromTable = row.Projectile_ID;
-            //Not Yet (20251124 11:58, only passivity)
-            //AttackRange 
 
             EditorUtility.SetDirty(so);
             updateCount++;

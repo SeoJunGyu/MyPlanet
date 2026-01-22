@@ -132,29 +132,31 @@ public class GameResultUI : MonoBehaviour
 
     private async UniTask ProcessRewards()
     {
-        await UniTask.WaitUntil(() => CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized);
         await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserStageManager.Instance.IsInitialized);
-        await UniTask.WaitUntil(() => ItemManager.Instance != null && ItemManager.Instance.IsInitialized);
+        await UniTask.WaitUntil(() => UserStageManager.Instance.ClearedStageData != null);
 
         int highestCleared = UserStageManager.Instance.ClearedStageData.HighestClearedStage;
         bool isFirstClear = Variables.Stage >= highestCleared;
 
-        if(isGameClear && currentStageData != null)
-        {
-            int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
-
-            var rewardData = DataTableManager.StageRewardTable.Get(rewardId);
-            if(rewardData != null)
-            {
-                ProcessStageRewardData(rewardData);
-            }
-        }
-
-        await SaveAllDataToFirebase();
-
         if (isGameClear && isFirstClear)
         {
             await UserStageManager.Instance.SaveUserStageClearAsync(Variables.Stage + 1);
+        }
+
+        if (isGameClear && currentStageData != null)
+        {
+            int rewardId = isFirstClear ? currentStageData.FirstReward_Id : currentStageData.Reward_Id;
+            var rewardData = DataTableManager.StageRewardTable.Get(rewardId);
+            if (rewardData != null) ProcessStageRewardData(rewardData);
+        }
+
+        bool currencyReady = CurrencyManager.Instance != null && CurrencyManager.Instance.IsInitialized;
+        bool itemReady = ItemManager.Instance != null && ItemManager.Instance.IsInitialized;
+        bool planetReady = PlanetManager.Instance != null; 
+
+        if (currencyReady && itemReady && planetReady)
+        {
+            await SaveAllDataToFirebase();
         }
     }
 

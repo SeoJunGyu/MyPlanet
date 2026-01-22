@@ -42,9 +42,10 @@ public class LobbyUI : MonoBehaviour
     private async UniTaskVoid Start()
     {
         await UniTask.WaitUntil(() => UserStageManager.Instance != null && UserStageManager.Instance.IsInitialized);
+        await UserStageManager.Instance.LoadUserStageClearAsync();
+        await UniTask.WaitUntil(() => UserStageManager.Instance.ClearedStageData != null);
 
         ResetBtn();
-
         stageContent = stageScrollRect.content;
         ResetStageLocked();
 
