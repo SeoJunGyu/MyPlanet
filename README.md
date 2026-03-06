@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="128" height="128" alt="MyPlanet" src="https://github.com/user-attachments/assets/86bb7145-005b-4fe8-bbbf-2924012736a7" />  
+</p>
+
 # 🎮 MyPlanet
 
 다양한 선택지를 통해 매 순간마다 새로운 전략으로 플레이하는 로그라이트 뱀서류 게임
@@ -29,7 +33,7 @@
 
 ## 🖼 게임 스크린샷 및 GIF
 
-|  증강 선택지 화면  |  전투 화면  |  도감 기능  |  타워 강화  |
+|  인게임 전투 화면  | 증강 선택지 화면  |  도감 기능  |  타워 강화  |
 |  --------------------------------- | ----------------------------------- | --------------------------------- | --------------------------------- |
 |  ![](https://github.com/user-attachments/assets/52b3ecf3-1aa7-4fda-ae0a-75db9394975e) |  ![](https://github.com/user-attachments/assets/104af4ac-9b34-4394-8480-36e883fc0979)  | ![](https://github.com/user-attachments/assets/2adfd9eb-5e1f-4bc1-b533-93097babd33e) | ![](https://github.com/user-attachments/assets/86a7001b-c66f-486d-9b41-5bdd462a6eea) |
 
@@ -37,7 +41,7 @@
 
 ## ⚙️ 주요 기능 및 시스템
 
-### Tower / Planet (Player)
+###  Tower / Planet (Player)
 
 * 행성 이동(조이스틱 컨트롤 기반) 시스템
 * 공격타워, 버프타워 등 다양한 타워 시스템
@@ -77,4 +81,5 @@
 | IDE             | Visual Studio        |
 | Version Control | Git / GitHub         |
 | Other Tool      | Firebase             |
+
 
