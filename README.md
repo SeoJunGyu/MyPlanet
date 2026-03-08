@@ -88,7 +88,3 @@
 | IDE             | Visual Studio        |
 | Version Control | Git / GitHub         |
 | Other Tool      | Firebase             |
-
-<td align="center"><img src="https://github.com/user-attachments/assets/63349481-6939-4a62-9385-20c1ee1e5723" height="400"/><br><sub>보스 전투/비동기 레이드</sub></td>
-</tr>
-</table>
