@@ -80,6 +80,7 @@
         - 상점 구현<br>
         - UI 디자인<br>
         - 테스트 환경 구축
+        <br><br><br>
     </td>
     <td align="top" width="600">
       <b>개발 팀원 (서준규)</b><br><br><br>
