@@ -1,8 +1,3 @@
-<div align="center">
-<h2>[2026] MyPlanet 🌍</h2>
-<p>유니티 합반 프로젝트<br>
-프리셋 기반 전략형 디펜스<br>
-</p>
 <img width="1536" height="1024" alt="이거로 결정" src="https://github.com/user-attachments/assets/59d2a751-4444-49db-b411-940caaf96258" />
   
 </div>
