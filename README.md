@@ -72,7 +72,7 @@
 <table align="center" width="100%">
   <tr>
     <td align="top" width="600">
-      <b>개발 팀장 (이정환)</b><br><br>
+      <b>개발 팀장 (이정환)</b><br><br><br><br>
         - Firebase 로그인<br>
         - 타워 증강 눙력 구현<br>
         - 타워 강화 구현<br>
@@ -92,7 +92,7 @@
         - 뽑기 시스템 구현
     </td>
     <td align="top" width="600">
-      <b>개발 팀원 (김민주)</b><br><br><br>
+      <b>개발 팀원 (김민주)</b><br><br><br><br><br>
         - 요격 및 버프 타워 기능 구현<br>
         - 증강 시스템 구현<br>
         - 타겟팅 시스템 구현<br>
