@@ -14,8 +14,13 @@
 
 * 개발 인원 : 개발자 3인, 기획자 3인 (협업 프로젝트)
 * 개발 기간 : 2025.11.07 ~ 2026.01.06 (8주)
-* 빌드 : Android (Google PlayStore 등록)
-* 개발 환경 : Unity 6.x
+* 플랫폼 : Android (Google PlayStore)
+* 최소 지원 버전 : Android 7.0 Naugot (API Level 24)
+* 개발 환경 : Unity 6.0
+* 주요 라이브러리 :
+  - UniTask (비동기 처리)
+  - Firebase SDK (인증, 데이터베이스)
+  - Addressables (리소스 관리)
 
 ---
 
@@ -37,6 +42,66 @@
 * 몰려오는 적들을 잡아 레벨업하고, 원하는 선택지를 골라 자신이 원하는 플레이 전략을 맞춰나갑니다.
 * 모든 웨이브를 버티면서 마지막 보스를 잡아 스테이지를 클리어합니다.
 * 메인 로비에서는 더 좋은 전략을 세우기 위해 행성과 타워를 강화하거나 도감에서 등장 확률을 조작할 수 있습니다.
+
+---
+
+## 🚀 설치 및 실행
+
+Google PlayStore에서 다운로드할 수 있습니다.
+
+[▶ PlayStore에서 다운로드](https://play.google.com/store/apps/details?id=com.kungil2.MyPlanet)
+
+---
+
+## 📁 프로젝트 구조
+```
+Assets/
+├── 📂 Scripts/
+│   ├── 📂 Ability/            # 증강 시스템
+│   ├── 📂 AsyncRaid/          # 비동기 레이드
+│   ├── 📂 Effect/             # 이펙트
+│   ├── 📂 Enemy/              # 적 시스템
+│   │   ├── Enemy.cs
+│   │   ├── ConstellationEnemy.cs
+│   │   ├── EnemyMovement.cs
+│   │   ├── EnemySpawner.cs
+│   │   ├── UFOEnemy.cs
+│   │   └── 📂 Movement/
+│   │   │   ├── AutoRotation.cs
+│   │   │   ├── ChaseMovement.cs
+│   │   │   ├── DescendAndStopMovement.cs
+│   │   │   ├── FollowParentMovement.cs
+│   │   │   ├── 등등...
+│   │   └── 📂 Patterns/
+│   │   │   ├── ExplosionPattern.cs
+│   │   │   ├── FirePillarLazer.cs
+│   │   │   ├── FirePillarLazerPattern.cs
+│   │   │   ├── HitSpeedBoostPattern.cs
+│   │   │   ├── 등등...
+│   ├── 📂 Planet/             # 행성 시스템
+│   │   ├── PlanetStatManager.cs
+│   │   └── PlanetUpgradeManager.cs
+│   │   ├── PlanetStat.cs
+│   │   ├── PlanetUpgrade.cs
+│   │   ├── 등등...
+│   ├── 📂 Tower/              # 타워 시스템
+│   ├── 📂 UI/                 # UI 시스템
+│   │   ├── CollectionPanel.cs
+│   │   ├── GachaPanelUI.cs
+│   │   ├── PlanetLevelUpgradeUI.cs
+│   │   ├── TutorialUI.cs
+│   │   ├── 등등...
+│   ├── 📂 Firebase/           # Firebase 연동
+│   │   ├── CurrencyManager.cs
+│   │   ├── GachaManager.cs
+│   │   └── CollectionManager.cs
+│   ├── 📂 Managers/          # 관리
+│   │   ├── GameManager.cs
+│   │   ├── DataTableManager.cs
+│   │   └── LoadManager.cs
+├── 📂 DataTable/              # 데이터 불러오기
+└── 📂 ASSET_FIND/      # Addressables 리소스
+```
 
 ---
 
