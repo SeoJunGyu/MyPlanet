@@ -114,20 +114,23 @@ Assets/
 
 💀 Enemy
 
-* 다양한 공격과 행동 방식을 가진 적
-* 웨이브 기반 적 등장 시스템
+* Strategy Pattern 기반 분리 설계 → [`EnemyMovement/`](Assets/Scripts/Enemy/EnemyMovement.cs)
+* 데이터 테이블 기반 움직임, 특수능력 → [`Enemy.cs`](Assets/Scripts/Enemy/Enemy.cs)
+* 가중치 랜덤 및 트리거 조건 기반 패턴 실행 → [`PatternExecutor/`](Assets/Scripts/Enemy/Pattern/PatternExecutor.cs)
+* 웨이브 타이밍 관리 및 스폰 시스템 → [`WaveManager.cs`](Assets/Scripts/Managers/WaveManager.cs)
 
 ⚡ 인게임 플레이
 
 * 레벨업 시 증강 선택지 제공
 * 강화 아이템 및 데미지 통계 기능
 * 타워 배치 수정 기능으로 전략적 운영 가능
+* 튜토리얼 시스템 → [`TutorialManager.cs`](Assets/Scripts/Managers/TutorialManager.cs)
 
 🔧 기타 시스템
 
-* 타워 & 행성 기본 능력치 강화
-* 뽑기 / 상점 / 도감 기능
-* Firebase 기반 계정 관리 시스템
+* 타워 & 행성 기본 능력치 강화 → [`PlanetLevelUpgradeUI.cs`](Assets/Scripts/UI/PlanetLevelUpgradeUI.cs)
+* 뽑기 / 상점 / 도감 기능 → [`GachaPanelUI.cs`](Assets/Scripts/UI/GachaPanelUI.cs)
+* Firebase 기반 계정 관리 시스템 → [`CollectionManager.cs`](Assets/Scripts/Firebase/CollectionManager.cs)
 * 다양한 조작 UI
 
 ---
